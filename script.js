@@ -1,7 +1,9 @@
 const itemForm = document.getElementById("item-form");
 const itemInput = document.getElementById("item-input");
 const itemList = document.getElementById("item-list");
-const clearBtn = document.getElementById('clear')
+const clearBtn = document.getElementById("clear");
+const itemFilter = document.getElementById("filter");
+
 
 // console.log(itemForm);
 // console.log(itemInput);
@@ -9,9 +11,10 @@ const clearBtn = document.getElementById('clear')
 
 // Functions
 function addItem(e) {
-  e.preventDefault(); 
+  e.preventDefault();
 
   let newItem = itemInput.value;
+  // console.log(newItem);
 
   // Validation Input
   if (newItem === "") {
@@ -30,49 +33,68 @@ function addItem(e) {
   // // // // //
 
   let button = createBtn("remove-item btn-link text-red");
-  li.appendChild(button)
+  li.appendChild(button);
   // console.log(li);
 
   itemList.appendChild(li);
 
+  checkUI();
+
   // to delete text in input
-  itemInput.value = '';
+  itemInput.value = "";
 }
 
 function createBtn(classes) {
-  let button = document.createElement('button');
+  let button = document.createElement("button");
   button.className = classes;
   let icon = createIcon("fa-solid fa-xmark");
-  button.appendChild(icon)
+  button.appendChild(icon);
   return button;
 }
 
-function createIcon(classes){
-  let icon = document.createElement('i');
+function createIcon(classes) {
+  let icon = document.createElement("i");
   icon.className = classes;
-  return icon
+  return icon;
 }
 
 function removeItem(e) {
-  if(e.target.parentElement.classList.contains('remove-item')){
-    // e.target.remove()
-    // console.log('click');
-    e.target.parentElement.parentElement.remove()
+  if (e.target.parentElement.classList.contains('remove-item')) {
+    const listItem = e.target.parentElement.parentElement;
+    const itemText = listItem.firstChild.textContent;
+    if (confirm(`Are you shure you whant to remove:  ${itemText}`)) {
+      listItem.remove();
+
+      checkUI();
+    }
   }
 }
 
-function clearItems(e) {
-  // console.log(e.target);
-  
-  // itemList.innerHTML = "";
+function clearItems() {
+  while (itemList.firstChild) {
+    itemList.removeChild(itemList.firstChild);
+  }
 
-  while(itemList.firstChild){
-    itemList.removeChild(itemList.firstChild)
+  checkUI();
+}
+
+function checkUI() {
+  const items = itemList.querySelectorAll('li');
+  // console.log(items);
+  
+
+  if (items.length === 0) {
+    clearBtn.style.display = 'none';
+    itemFilter.style.display = 'none';
+  } else {
+    clearBtn.style.display = 'block';
+    itemFilter.style.display = 'block';
   }
 }
 
 // Event Listeners
+itemForm.addEventListener('submit', addItem);
+itemList.addEventListener('click', removeItem);
+clearBtn.addEventListener('click', clearItems);
 
-itemForm.addEventListener("submit", addItem);
-itemList.addEventListener("click", removeItem);
-clearBtn.addEventListener('click', clearItems)
+checkUI();
