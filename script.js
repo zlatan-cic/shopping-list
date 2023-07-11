@@ -4,7 +4,6 @@ const itemList = document.getElementById("item-list");
 const clearBtn = document.getElementById("clear");
 const itemFilter = document.getElementById("filter");
 
-
 // console.log(itemForm);
 // console.log(itemInput);
 // console.log(itemList);
@@ -59,7 +58,7 @@ function createIcon(classes) {
 }
 
 function removeItem(e) {
-  if (e.target.parentElement.classList.contains('remove-item')) {
+  if (e.target.parentElement.classList.contains("remove-item")) {
     const listItem = e.target.parentElement.parentElement;
     const itemText = listItem.firstChild.textContent;
     if (confirm(`Are you shure you whant to remove:  ${itemText}`)) {
@@ -78,23 +77,43 @@ function clearItems() {
   checkUI();
 }
 
+function filterItems(e) {
+  const items = itemList.querySelectorAll("li");
+  let text = e.target.value.toLowerCase();
+  // console.log(text);
+
+  items.forEach((item) => {
+    // console.log(item);
+    let itemName = item.firstChild.textContent.toLocaleLowerCase();
+    // console.log(itemName);
+
+    if(itemName.indexOf(text) != -1){
+      item.style.display = 'flex'
+      // console.log(true);
+    } else {
+      // console.log(false);
+      item.style.display = 'none'
+    }
+  });
+}
+
 function checkUI() {
-  const items = itemList.querySelectorAll('li');
+  const items = itemList.querySelectorAll("li");
   // console.log(items);
-  
 
   if (items.length === 0) {
-    clearBtn.style.display = 'none';
-    itemFilter.style.display = 'none';
+    clearBtn.style.display = "none";
+    itemFilter.style.display = "none";
   } else {
-    clearBtn.style.display = 'block';
-    itemFilter.style.display = 'block';
+    clearBtn.style.display = "block";
+    itemFilter.style.display = "block";
   }
 }
 
 // Event Listeners
-itemForm.addEventListener('submit', addItem);
-itemList.addEventListener('click', removeItem);
-clearBtn.addEventListener('click', clearItems);
+itemForm.addEventListener("submit", addItem);
+itemList.addEventListener("click", removeItem);
+clearBtn.addEventListener("click", clearItems);
+itemFilter.addEventListener("input", filterItems);
 
 checkUI();
