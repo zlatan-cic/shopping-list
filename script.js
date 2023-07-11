@@ -4,43 +4,48 @@ const itemList = document.getElementById("item-list");
 const clearBtn = document.getElementById("clear");
 const itemFilter = document.getElementById("filter");
 
-// console.log(itemForm);
-// console.log(itemInput);
-// console.log(itemList);
-
 // Functions
-function addItem(e) {
+
+function displayItems() {
+  let itemsFromStorage = getItemsFromStorage();
+  itemsFromStorage.forEach((item) => {
+    addItemToDOM(item);
+  });
+  checkUI();
+}
+
+function onAddItemSubmit(e) {
   e.preventDefault();
 
   let newItem = itemInput.value;
-  // console.log(newItem);
 
   // Validation Input
   if (newItem === "") {
     alert("Please Add Item");
     return;
   }
-  // console.log("SUCCESS:  " + itemInput.value);
 
-  // Create List item
-  let li = document.createElement("li");
-  li.appendChild(document.createTextNode(newItem));
+  // Create item DOM element
+  addItemToDOM(newItem);
 
-  // // // // // Testing somting
-  // console.log(li.appendChild(document.createTextNode(newItem)));
-  // console.log(newItem);
-  // // // // //
-
-  let button = createBtn("remove-item btn-link text-red");
-  li.appendChild(button);
-  // console.log(li);
-
-  itemList.appendChild(li);
+  // Add item to localStorage
+  addItemToStorage(newItem);
 
   checkUI();
 
   // to delete text in input
   itemInput.value = "";
+}
+
+function addItemToDOM(item) {
+  // Create List item
+  let li = document.createElement("li");
+  li.appendChild(document.createTextNode(item));
+
+  let button = createBtn("remove-item btn-link text-red");
+  li.appendChild(button);
+
+  itemList.appendChild(li);
 }
 
 function createBtn(classes) {
@@ -55,6 +60,27 @@ function createIcon(classes) {
   let icon = document.createElement("i");
   icon.className = classes;
   return icon;
+}
+
+function addItemToStorage(item) {
+  let itemsFromStorage = getItemsFromStorage();
+
+  // Add new item to array
+  itemsFromStorage.push(item);
+
+  // Convert to JSOM stringset to localStorage
+  localStorage.setItem("items", JSON.stringify(itemsFromStorage));
+}
+
+function getItemsFromStorage(item) {
+  let itemsFromStorage;
+
+  if (localStorage.getItem("items") === null) {
+    itemsFromStorage = [];
+  } else {
+    itemsFromStorage = JSON.parse(localStorage.getItem("items"));
+  }
+  return itemsFromStorage;
 }
 
 function removeItem(e) {
@@ -87,12 +113,12 @@ function filterItems(e) {
     let itemName = item.firstChild.textContent.toLocaleLowerCase();
     // console.log(itemName);
 
-    if(itemName.indexOf(text) != -1){
-      item.style.display = 'flex'
+    if (itemName.indexOf(text) != -1) {
+      item.style.display = "flex";
       // console.log(true);
     } else {
       // console.log(false);
-      item.style.display = 'none'
+      item.style.display = "none";
     }
   });
 }
@@ -110,10 +136,18 @@ function checkUI() {
   }
 }
 
-// Event Listeners
-itemForm.addEventListener("submit", addItem);
-itemList.addEventListener("click", removeItem);
-clearBtn.addEventListener("click", clearItems);
-itemFilter.addEventListener("input", filterItems);
+// Initialize app
+function init() {
+  // Event Listeners
+  itemForm.addEventListener("submit", onAddItemSubmit);
+  itemList.addEventListener("click", removeItem);
+  clearBtn.addEventListener("click", clearItems);
+  itemFilter.addEventListener("input", filterItems);
+  document.addEventListener("DOMContentLoaded", displayItems);
 
-checkUI();
+  checkUI();
+}
+
+init();
+
+
