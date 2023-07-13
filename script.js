@@ -3,6 +3,9 @@ const itemInput = document.getElementById("item-input");
 const itemList = document.getElementById("item-list");
 const clearBtn = document.getElementById("clear");
 const itemFilter = document.getElementById("filter");
+const formBtn = itemForm.querySelector("button");
+
+let isEditMode = false; // importent to be let not const
 
 // Functions
 
@@ -23,6 +26,16 @@ function onAddItemSubmit(e) {
   if (newItem === "") {
     alert("Please Add Item");
     return;
+  }
+
+  // Check for edit Mode
+  if (isEditMode) {
+    let itemToEdit = itemList.querySelector(".edit-mode");
+
+    removeItemFromStorage(itemToEdit.textContent);
+    itemToEdit.classList.remove("edit-mode");
+    itemToEdit.remove();
+    isEditMode = false;
   }
 
   // Create item DOM element
@@ -83,22 +96,75 @@ function getItemsFromStorage(item) {
   return itemsFromStorage;
 }
 
-function removeItem(e) {
+function onClickItem(e) {
   if (e.target.parentElement.classList.contains("remove-item")) {
-    const listItem = e.target.parentElement.parentElement;
-    const itemText = listItem.firstChild.textContent;
-    if (confirm(`Are you shure you whant to remove:  ${itemText}`)) {
-      listItem.remove();
-
-      checkUI();
-    }
+    removeItem(e.target.parentElement.parentElement);
+  } else {
+    setItemToEdit(e.target);
   }
+}
+
+function setItemToEdit(item) {
+  console.log(item);
+  isEditMode = true;
+
+  itemList.querySelectorAll("li").forEach((item) => {
+    item.classList.remove("edit-mode");
+  });
+
+  item.classList.add("edit-mode");
+  formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Item';
+  formBtn.style.background = "green";
+
+  itemInput.value = item.textContent;
+
+  // Just testing for fun! :)
+  // item.style.background = "orange"
+  // item.parentElement.style.background = 'green'
+  // item.parentElement.parentElement.style.background = 'pink'
+}
+
+function removeItem(item) {
+  console.log(item);
+  // let listItem = item.target.parentElement.parentElement;
+  // const itemText = listItem.firstChild.textContent
+  if (confirm(`Are you sure?: ${item.textContent}`)) {
+    // remove item from DOM
+    item.remove();
+
+    // Remove item from LOcalStorage
+    removeItemFromStorage(item.textContent);
+
+    checkUI();
+  }
+  // if (e.target.parentElement.classList.contains("remove-item")) {
+  //   const listItem = e.target.parentElement.parentElement;
+  //   const itemText = listItem.firstChild.textContent;
+  //   if (confirm(`Are you shure you whant to remove:  ${itemText}`)) {
+  //     listItem.remove();
+
+  //     checkUI();
+  //   }
+  // }
+}
+
+function removeItemFromStorage(item) {
+  let itemsFromStorage = getItemsFromStorage();
+  // console.log(itemsFromStorage);
+
+  // Filter out item to be remove
+  itemsFromStorage = itemsFromStorage.filter((i) => i !== item);
+  // Re - set to localStorage
+  localStorage.setItem("items", JSON.stringify(itemsFromStorage));
 }
 
 function clearItems() {
   while (itemList.firstChild) {
     itemList.removeChild(itemList.firstChild);
   }
+
+  // clear form localStorage
+  localStorage.removeItem("items");
 
   checkUI();
 }
@@ -134,13 +200,19 @@ function checkUI() {
     clearBtn.style.display = "block";
     itemFilter.style.display = "block";
   }
+
+  formBtn.innerHTML = '<i class ="fa-solid fa-plus"></i> Add Item';
+  formBtn.style.background = '#333'
+
+
+  isEditMode = false;
 }
 
 // Initialize app
 function init() {
   // Event Listeners
   itemForm.addEventListener("submit", onAddItemSubmit);
-  itemList.addEventListener("click", removeItem);
+  itemList.addEventListener("click", onClickItem);
   clearBtn.addEventListener("click", clearItems);
   itemFilter.addEventListener("input", filterItems);
   document.addEventListener("DOMContentLoaded", displayItems);
@@ -149,5 +221,3 @@ function init() {
 }
 
 init();
-
-
